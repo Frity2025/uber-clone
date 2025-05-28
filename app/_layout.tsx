@@ -1,56 +1,39 @@
-import 'react-native-reanimated';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
-import { LogBox } from 'react-native';
-import { tokenCache } from '@/lib/auth';
 import * as SplashScreen from 'expo-splash-screen';
-import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo'
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
 
-
-const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
-
+// Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
-LogBox.ignoreLogs(["Clerk:"]);
-
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    "Jakarta-Bold": require("../assets/fonts/PlusJakartaSans-Bold.ttf"),
-    "Jakarta-ExtraBold": require("../assets/fonts/PlusJakartaSans-ExtraBold.ttf"),
-    "Jakarta-ExtraLight": require("../assets/fonts/PlusJakartaSans-ExtraLight.ttf"),
-    "Jakarta-Light": require("../assets/fonts/PlusJakartaSans-Light.ttf"),
-    "Jakarta-Medium": require("../assets/fonts/PlusJakartaSans-Medium.ttf"),
-    "Jakarta-Regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
-    "Jakarta-SemiBold": require("../assets/fonts/PlusJakartaSans-SemiBold.ttf"),
-});
-
-if (!publishableKey) {
-  throw new Error(
-    'Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env',
-  );
-}
+  const [fontsLoaded, fontError] = useFonts({
+    'Inter-Regular': Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
+  });
 
   useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded, fontError]);
 
-  if (!loaded) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <ClerkLoaded>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="(root)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-        </ClerkLoaded>
-      </ClerkProvider>
-      );
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(app)" options={{ headerShown: false }} />
+    </Stack>
+  );
 }
